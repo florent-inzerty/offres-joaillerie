@@ -1,5 +1,5 @@
 window.ATELIERS = {
- "maj": "2026-11-13T19:50Z",
+ "maj": "2026-11-13T20:34Z",
  "liste": [
   {
    "id": "45292566200036",
@@ -98,8 +98,8 @@ window.ATELIERS = {
     2.96732
    ],
    "salaries": null,
-   "site": "http://www.heureetmontres.com/",
-   "tel": "+33 3 20 22 19 38",
+   "site": "https://www.histoiredor.com/fr_FR/details/magasin/?storeID=H069",
+   "tel": "+33 3 20 10 90 71",
    "mail": null,
    "km": 9
   },
@@ -132,8 +132,8 @@ window.ATELIERS = {
     2.96799
    ],
    "salaries": null,
-   "site": null,
-   "tel": null,
+   "site": "https://www.marc-orian.com/fr_FR/details/magasin/?storeID=M030",
+   "tel": "+33 3 20 09 82 02",
    "mail": null,
    "km": 9
   },
@@ -609,7 +609,7 @@ window.ATELIERS = {
    ],
    "salaries": null,
    "site": null,
-   "tel": null,
+   "tel": "+33320639454",
    "mail": null,
    "km": 14
   },
@@ -876,12 +876,12 @@ window.ATELIERS = {
    "ville": "Lille",
    "adresse": null,
    "coords": [
-    50.6339,
-    3.06355
+    50.63396,
+    3.06361
    ],
    "salaries": null,
-   "site": null,
-   "tel": null,
+   "site": "https://www.histoiredor.com/fr_FR/details/magasin/?storeID=H225",
+   "tel": "+33 3 20 14 18 70",
    "mail": null,
    "km": 14
   },
@@ -897,8 +897,8 @@ window.ATELIERS = {
     3.04658
    ],
    "salaries": null,
-   "site": null,
-   "tel": null,
+   "site": "https://www.histoiredor.com/fr_FR/details/magasin/?storeID=H031",
+   "tel": "+33 3 20 10 99 89",
    "mail": null,
    "km": 14
   },
@@ -1306,7 +1306,7 @@ window.ATELIERS = {
    ],
    "salaries": "1 ou 2 salariés",
    "site": "https://www.zeina-alliances.com/pages/boutique/lille",
-   "tel": "+33 3 66 72 91 59",
+   "tel": "+33 3 74 09 66 60",
    "mail": null,
    "km": 14
   },
@@ -1849,8 +1849,8 @@ window.ATELIERS = {
     3.08147
    ],
    "salaries": null,
-   "site": null,
-   "tel": null,
+   "site": "https://www.histoiredor.com/fr_FR/details/magasin/?storeID=H027",
+   "tel": "+33 3 20 97 96 97",
    "mail": null,
    "km": 18
   },
@@ -1919,7 +1919,7 @@ window.ATELIERS = {
    "salaries": null,
    "site": "https://www.bijou-brigitte.com/fr",
    "tel": null,
-   "mail": null,
+   "mail": "socialmedia@bijou-brigitte.com",
    "km": 19
   },
   {
@@ -1934,7 +1934,7 @@ window.ATELIERS = {
     3.13129
    ],
    "salaries": null,
-   "site": "https://www.marc-orian.com/fr_FR/details/magasin/?storeID=366",
+   "site": "https://www.marc-orian.com/fr_FR/details/magasin/?storeID=M040",
    "tel": "+33320913399",
    "mail": null,
    "km": 19
@@ -2308,8 +2308,8 @@ window.ATELIERS = {
     3.17598
    ],
    "salaries": "3 à 5 salariés",
-   "site": null,
-   "tel": null,
+   "site": "https://www.histoiredor.com/fr_FR/details/magasin/?storeID=H092",
+   "tel": "+33 3 20 73 02 64",
    "mail": null,
    "km": 21
   },
@@ -2342,8 +2342,8 @@ window.ATELIERS = {
     3.18301
    ],
    "salaries": "6 à 9 salariés",
-   "site": null,
-   "tel": null,
+   "site": "https://www.swarovski.com/en-LU/store/0001826846/swarovski-outlet-roubaix-roubaix/",
+   "tel": "+33 3 20 93 69 33",
    "mail": null,
    "km": 21
   },
@@ -2478,8 +2478,8 @@ window.ATELIERS = {
     3.21964
    ],
    "salaries": "6 à 9 salariés",
-   "site": null,
-   "tel": null,
+   "site": "https://www.histoiredor.com/fr_FR/details/magasin/?storeID=H102",
+   "tel": "+33 3 20 83 44 19",
    "mail": null,
    "km": 24
   },
@@ -2512,8 +2512,8 @@ window.ATELIERS = {
     3.22064
    ],
    "salaries": null,
-   "site": null,
-   "tel": null,
+   "site": "https://www.marc-orian.com/fr_FR/details/magasin/?storeID=M004",
+   "tel": "+33 3 20 83 89 86",
    "mail": null,
    "km": 24
   },
