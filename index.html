@@ -203,6 +203,22 @@ function vue(nom) { // téléphone : la carte plein écran, ou la liste
   scrollTo(0, 0);
 }
 
+// Deux villes proches (Roubaix/Tourcoing) : on écarte leurs ronds à l'écran pour qu'ils ne se cachent pas.
+function ecarter() {
+  const ms = calque.getLayers(), MIN = 34; // px entre deux centres
+  const pts = ms.map(m => carte.latLngToLayerPoint(m.vraie));
+  for (let tour = 0; tour < 20; tour++) {
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+      const d = pts[j].subtract(pts[i]), dist = d.distanceTo([0, 0]) || 0.01;
+      if (dist >= MIN) continue;
+      const pousse = (dist ? d : L.point(1, 0)).multiplyBy((MIN - dist) / 2 / dist);
+      pts[i] = pts[i].subtract(pousse); pts[j] = pts[j].add(pousse);
+    }
+  }
+  ms.forEach((m, i) => m.setLatLng(carte.layerPointToLatLng(pts[i])));
+}
+carte.on("zoomend", ecarter);
+
 function afficher() {
   // pastilles de filtre, avec le nombre d'offres par type
   const n = c => data.offres.filter(o => groupe(o.contrat) === c).length;
@@ -218,12 +234,14 @@ function afficher() {
   const parVille = {};
   offres.filter(o => o.coords).forEach(o => (parVille[o.ville] ??= []).push(o));
   for (const [ville, os] of Object.entries(parVille)) {
-    L.marker(os[0].coords, { icon: L.divIcon({ className: "", iconSize: null,
+    const m = L.marker(os[0].coords, { icon: L.divIcon({ className: "", iconSize: null,
         html: `<div class="pin ${ville === villeChoisie ? "actif" : ""}" data-ville="${esc(ville)}">${os.length}</div>` }) })
       .bindTooltip(`${esc(ville)} · ${pluriel(os.length, "offre")}`, { direction: "top", offset: [0, -12] })
       .on("click", () => { villeChoisie = ville; afficher(); if (innerWidth < 900) vue("liste"); })
       .addTo(calque);
+    m.vraie = L.latLng(os[0].coords);
   }
+  ecarter();
 
   document.getElementById("enteteListe").textContent = liste.length
     ? pluriel(liste.length, "offre") + (nouvelles ? ` · ${pluriel(nouvelles, "nouvelle")}` : "") : "";

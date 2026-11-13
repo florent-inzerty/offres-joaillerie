@@ -53,6 +53,15 @@ def contrat(s):
     return "Autre"
 
 
+def source_ft(bloc):
+    """France Travail republie des offres de partenaires (TalentPlug, HelloWork, Skello...) : on garde l'origine."""
+    m = re.search(r'alt="Origine de l.offre : ([^"]+)"', bloc)
+    origine = html.unescape(m.group(1)) if m else "France Travail"
+    if origine == "France Travail":
+        return origine
+    return {"HELLOWORK": "HelloWork"}.get(origine, origine.title()) + " via France Travail"
+
+
 def france_travail(mot, dep):
     offres = []
     for debut in range(0, 200, 20):  # ponytail: 10 pages max, largement assez pour ce métier
@@ -67,7 +76,7 @@ def france_travail(mot, dep):
             m = re.match(r"(\d\w)\s*-\s*(.+)", lieu)
             offres.append({
                 "id": "ft-" + id_,
-                "source": "France Travail",
+                "source": source_ft(b),
                 "titre": texte(re.search(r'media-heading-title">(.*?)</span>', b, re.S).group(1)),
                 "entreprise": entreprise.strip(" -"),
                 "ville": ville(m.group(2) if m else lieu),
