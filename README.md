@@ -44,10 +44,24 @@ La collecte tourne toute seule sur les serveurs de GitHub (GitHub Actions), **to
 - Pour forcer une collecte : onglet **Actions** du dépôt → « Collecte des offres » → **Run workflow**.
 - GitHub met en pause les tâches planifiées d'un dépôt public resté 60 jours sans activité. Il prévient alors par e-mail, et un clic dans l'onglet Actions les relance.
 
+## Annuaire des ateliers (bouton « Ateliers »)
+
+Pour les candidatures spontanées : les ateliers et bijouteries de la même zone, chaînes comprises.
+
+| Source | Ce qu'elle apporte |
+|---|---|
+| **Registre national des entreprises** (`recherche-entreprises.api.gouv.fr`, données publiques de l'État) | Les établissements actifs déclarés **32.12Z** (fabrication de bijoux, les ateliers) ou **47.77Z** (bijouteries-horlogeries), avec la tranche de salariés. Les personnes qui ont refusé la diffusion de leurs données sont exclues. |
+| **OpenStreetMap** (API Overpass) | Site web, téléphone et e-mail quand ils sont renseignés, plus quelques boutiques absentes du registre. |
+
+- **Contenu** : environ 150 lieux, dont 30 ateliers de fabrication. Une quarantaine de lieux ont un site web, une trentaine un téléphone, et seulement quelques-uns un e-mail.
+- **Mise à jour** : **chaque lundi** vers 5 h (6 h en été), car un annuaire change peu.
+- **Bouton « Marquer comme contacté »** : il enregistre la date sur l'appareil utilisé. Ce que tu coches sur ton téléphone n'apparaît donc pas sur ton ordinateur, et inversement. Vider les données du navigateur efface aussi ces marques.
+
 ## Fichiers
 
 - `index.html` : la page (carte + liste).
 - `collecte.py` : la collecte. La zone (`CENTRE`, `RAYON_KM`) et les mots-clés (`MOTS_CLES`) se règlent en haut du fichier.
 - `offres.js` : les offres trouvées, réécrites à chaque collecte.
 - `zone.py` → `zone.js` : le contour de la zone sur la carte. À relancer seulement si la zone change.
-- `.github/workflows/collecte.yml` : la planification.
+- `ateliers.py` → `ateliers.js` : l'annuaire des ateliers et bijouteries.
+- `.github/workflows/collecte.yml` (offres, toutes les 3 h) et `ateliers.yml` (annuaire, le lundi) : la planification.

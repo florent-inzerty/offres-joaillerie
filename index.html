@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="zone.js"></script>
+<script>document.write(`<script src="ateliers.js?t=${Date.now()}"><\/script>`)</script>
 <!-- ?t= : toujours la dernière version des offres, jamais celle en cache -->
 <script>document.write(`<script src="offres.js?t=${Date.now()}"><\/script>`)</script>
 <style>
@@ -87,10 +88,32 @@
   .onglets { position: fixed; z-index: 1000; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom));
              display: flex; padding: 4px; gap: 2px; border-radius: 999px; background: var(--carte); border: 1px solid var(--bord);
              box-shadow: 0 8px 30px rgba(0,0,0,.12); }
-  .onglets button { border: 0; background: transparent; padding: 9px 20px; border-radius: 999px; font-size: 14px; font-weight: 500;
+  .onglets button { border: 0; background: transparent; padding: 9px 16px; border-radius: 999px; font-size: 14px; font-weight: 500;
                     color: var(--doux); cursor: pointer; display: flex; gap: 6px; align-items: center; }
   .onglets button svg { width: 16px; height: 16px; stroke: currentColor; }
   .onglets button[aria-selected="true"] { background: var(--inverse); color: var(--sur-inverse); }
+
+  /* ateliers */
+  .recherche { width: 100%; font: inherit; font-size: 14px; color: var(--texte); background: var(--surface); border: 1px solid var(--bord);
+               border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; outline: none; }
+  .recherche:focus { border-color: var(--texte); }
+  .atelier.contacte { opacity: .55; }
+  .tags { display: flex; gap: 6px; flex: none; }
+  .liens { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .liens a { font-size: 13px; color: var(--texte); text-decoration: none; border: 1px solid var(--bord); border-radius: 999px; padding: 4px 11px;
+             max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .liens a:hover { background: var(--survol); }
+  .inconnu { font-size: 12.5px; color: var(--pale); margin-top: 10px; }
+  .contact { margin-top: 12px; width: 100%; border: 1px dashed var(--bord); background: transparent; border-radius: 12px; padding: 9px;
+             font-size: 13.5px; font-weight: 500; color: var(--doux); cursor: pointer; }
+  .contact.fait { border-style: solid; background: var(--inverse); color: var(--sur-inverse); border-color: var(--inverse); }
+  /* fiche d'un atelier touché sur la carte : en bas de l'écran, au-dessus de la barre */
+  .fiche { position: fixed; z-index: 1001; left: 12px; right: 12px; bottom: calc(84px + env(safe-area-inset-bottom));
+           max-width: 420px; margin: 0 auto; box-shadow: 0 12px 40px rgba(0,0,0,.18); border-radius: 16px; }
+  .fiche[hidden] { display: none; }
+  .fiche .offre { margin: 0; padding-right: 44px; }
+  .fermer { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border: 0; border-radius: 50%;
+            background: var(--survol); color: var(--doux); cursor: pointer; font-size: 15px; line-height: 1; }
 
   /* carte */
   .pin { background: var(--inverse); color: var(--sur-inverse); font: 600 12.5px Inter, sans-serif; min-width: 28px; height: 28px;
@@ -119,7 +142,9 @@
     main { grid-template-columns: 460px 1fr; }
     .vue-carte, body.liste .vue-carte { display: block; }
     .vue-liste { display: block; padding: 16px 24px 24px; border-right: 1px solid var(--bord); }
-    .onglets { display: none; }
+    .onglets [data-vue="carte"] { display: none; } /* la carte est toujours visible */
+    .fiche { left: auto; right: 16px; width: 380px; margin: 0; }
+    .vue-liste { overflow-y: auto; }
   }
 </style>
 </head>
@@ -144,30 +169,47 @@
 </main>
 
 
+<div class="fiche" id="fiche" hidden></div>
+
 <nav class="onglets" role="tablist">
   <button role="tab" aria-selected="true" data-vue="carte">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>Carte</button>
-  <button role="tab" aria-selected="false" data-vue="liste">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>Liste</button>
+  <button role="tab" aria-selected="false" data-vue="offres">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>Offres</button>
+  <button role="tab" aria-selected="false" data-vue="ateliers">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linejoin="round"><path d="M12 3l7 7-7 11-7-11z"/></svg>Ateliers</button>
 </nav>
 
 <script>
 const data = window.DATA || { maj: null, offres: [] };
+const annuaire = window.ATELIERS || { maj: null, liste: [] };
 const CENTRE = [50.6886, 2.8807]; // Armentières (comme collecte.py)
 const CONTRATS = ["CDI", "CDD", "Alternance", "Autre"];
 const actifs = new Set(CONTRATS);
-let villeChoisie = null;
+// filtres des ateliers : types affichés (actifs par défaut) et restrictions (inactives par défaut)
+const filtresA = { Atelier: true, Bijouterie: true, "Chaînes": true, "Avec salariés": false, "À contacter": false };
+let mode = "offres", villeChoisie = null, recherche = "", ficheId = null;
+
+// Ateliers déjà contactés : gardés dans ce navigateur uniquement (téléphone ≠ ordinateur)
+let contactes = {};
+try { contactes = JSON.parse(localStorage.getItem("contactes")) || {}; } catch {}
+function basculerContact(id) {
+  contactes[id] ? delete contactes[id] : contactes[id] = new Date().toISOString().slice(0, 10);
+  try { localStorage.setItem("contactes", JSON.stringify(contactes)); } catch {}
+  afficher();
+}
 
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const groupe = c => CONTRATS.includes(c) ? c : "Autre";
 const estNouvelle = o => o.vu_le && (Date.now() - new Date(o.vu_le)) < 3 * 864e5;
 const pluriel = (n, mot) => `${n} ${mot}${n > 1 ? "s" : ""}`;
+const salarie = l => l.salaries && l.salaries !== "0 salarié";
+const dateFr = iso => new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 function ilYa(iso) {
-  if (!iso) return "jamais vérifié";
+  if (!iso) return "jamais";
   const min = Math.max(0, Math.round((Date.now() - new Date(iso)) / 6e4));
-  return "vérifié il y a " + (min < 60 ? `${min} min` : min < 1440 ? `${Math.round(min / 60)} h` : pluriel(Math.round(min / 1440), "jour"));
+  return "il y a " + (min < 60 ? `${min} min` : min < 1440 ? `${Math.round(min / 60)} h` : pluriel(Math.round(min / 1440), "jour"));
 }
-document.getElementById("sous").textContent = `Armentières 30 km · ${ilYa(data.maj)}`;
 
 // Carte : verrouillée sur la zone, fond gris Esri (sans clé API) + noms de villes
 const sombre = matchMedia("(prefers-color-scheme: dark)").matches;
@@ -176,10 +218,9 @@ L.control.zoom({ position: "topright" }).addTo(carte);
 const esri = n => `https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_${sombre ? "Dark" : "Light"}_Gray_${n}/MapServer/tile/{z}/{y}/{x}`;
 L.tileLayer(esri("Base"), { attribution: "© Esri, OpenStreetMap", maxZoom: 16 }).addTo(carte);
 L.tileLayer(esri("Reference"), { maxZoom: 16 }).addTo(carte);
-const calque = L.layerGroup().addTo(carte);
 
 // Zone = cercle de 30 km découpé aux limites du Nord (zone.js, généré par zone.py) ; le reste est grisé
-const encre = sombre ? "#ececec" : "#0d0d0d";
+const encre = sombre ? "#ececec" : "#0d0d0d", papier = sombre ? "#2a2a2a" : "#ffffff";
 const monde = [[85, -180], [85, 180], [-85, 180], [-85, -180]];
 L.polygon([monde, ...window.ZONE], { stroke: false, fillColor: sombre ? "#000" : "#fff", fillOpacity: sombre ? .55 : .7,
                                       interactive: false }).addTo(carte);
@@ -187,6 +228,8 @@ const zone = L.polygon(window.ZONE, { color: encre, weight: 1.5, opacity: .6, da
 L.marker(CENTRE, { icon: L.divIcon({ className: "", html: '<div class="moi"></div>', iconSize: [16, 16] }), interactive: false,
                    zIndexOffset: -100 })
   .bindTooltip("Armentières", { permanent: true, direction: "right", offset: [10, 0], className: "moi-nom" }).addTo(carte);
+const calqueAteliers = L.layerGroup().addTo(carte); // sous les ronds d'offres
+const calque = L.layerGroup().addTo(carte);
 
 function cadrer() { // à refaire quand la taille de la carte change
   carte.invalidateSize();
@@ -196,11 +239,14 @@ function cadrer() { // à refaire quand la taille de la carte change
 }
 cadrer();
 
-function vue(nom) { // téléphone : la carte plein écran, ou la liste
-  document.body.classList.toggle("liste", nom === "liste");
-  document.querySelectorAll(".onglets button").forEach(b => b.setAttribute("aria-selected", b.dataset.vue === nom));
+// Barre du bas : Carte (téléphone), Offres, Ateliers
+function vue(nom) {
+  if (nom !== "carte") { mode = nom; villeChoisie = null; }
+  document.body.classList.toggle("liste", nom !== "carte");
   if (nom === "carte") cadrer();
   scrollTo(0, 0);
+  document.querySelector(".vue-liste").scrollTop = 0;
+  afficher();
 }
 
 // Deux villes proches (Roubaix/Tourcoing) : on écarte leurs ronds à l'écran pour qu'ils ne se cachent pas.
@@ -219,17 +265,53 @@ function ecarter() {
 }
 carte.on("zoomend", ecarter);
 
+function ficheAtelier(l) {
+  const site = l.site && l.site.replace(/^https?:\/\/(www\.)?/, "").replace(/\/.*$/, "");
+  const fait = contactes[l.id];
+  return `
+    <div class="offre atelier ${fait ? "contacte" : ""}">
+      <div class="haut"><div class="titre">${esc(l.nom)}</div>
+        <div class="tags">${l.chaine ? '<span class="contrat">Chaîne</span>' : ""}<span class="contrat">${esc(l.type)}</span></div></div>
+      <div class="ent">${esc(l.ville)} · ${l.km} km</div>
+      <div class="bas" style="margin-top:6px">${l.salaries ? esc(l.salaries) : "Nombre de salariés non connu"}</div>
+      ${l.site || l.tel || l.mail ? `<div class="liens">
+        ${l.site ? `<a href="${esc(l.site)}" target="_blank" rel="noopener">${esc(site)} ↗</a>` : ""}
+        ${l.tel ? `<a href="tel:${esc(l.tel.replace(/[^+\d]/g, ""))}">${esc(l.tel)}</a>` : ""}
+        ${l.mail ? `<a href="mailto:${esc(l.mail)}">${esc(l.mail)}</a>` : ""}</div>`
+        : '<div class="inconnu">Ni site, ni téléphone, ni e-mail connus</div>'}
+      <button class="contact ${fait ? "fait" : ""}" data-contact="${esc(l.id)}">
+        ${fait ? `✓ Contacté le ${dateFr(fait)}` : "Marquer comme contacté"}</button>
+    </div>`;
+}
+
+function filtrerAteliers() {
+  const q = recherche.toLowerCase();
+  return annuaire.liste.filter(l => filtresA[l.type] && (filtresA["Chaînes"] || !l.chaine)
+    && (!filtresA["Avec salariés"] || salarie(l)) && (!filtresA["À contacter"] || !contactes[l.id])
+    && (!q || `${l.nom} ${l.ville}`.toLowerCase().includes(q)));
+}
+
 function afficher() {
-  // pastilles de filtre, avec le nombre d'offres par type
-  const n = c => data.offres.filter(o => groupe(o.contrat) === c).length;
-  document.getElementById("chips").innerHTML =
-    (villeChoisie ? `<button class="chip ville" data-ville-off>${esc(villeChoisie)} ✕</button>` : "") +
-    CONTRATS.map(c => `<button class="chip" aria-pressed="${actifs.has(c)}" data-c="${c}">${c}<span>${n(c)}</span></button>`).join("");
+  const chips = document.getElementById("chips"), liste = document.getElementById("liste");
+  const surCarte = !document.body.classList.contains("liste") && innerWidth < 900;
+  document.querySelectorAll(".onglets button").forEach(b => b.setAttribute("aria-selected", b.dataset.vue === (surCarte ? "carte" : mode)));
 
+  // --- ateliers sur la carte (petits points) ---
+  const ateliers = filtrerAteliers();
+  calqueAteliers.clearLayers();
+  ateliers.forEach(l => L.circleMarker(l.coords, {
+      radius: l.id === ficheId ? 8 : 4.5, weight: l.id === ficheId ? 3 : 1.5, color: encre,
+      fillColor: contactes[l.id] ? "#9b9b9b" : l.type === "Atelier" ? encre : papier,
+      fillOpacity: 1, opacity: contactes[l.id] ? .4 : .85 })
+    .on("click", e => { L.DomEvent.stopPropagation(e); ficheId = l.id; afficher(); })
+    .addTo(calqueAteliers));
+  const lieu = annuaire.liste.find(l => l.id === ficheId);
+  const fiche = document.getElementById("fiche");
+  fiche.hidden = !lieu || document.body.classList.contains("liste") && innerWidth < 900;
+  fiche.innerHTML = lieu ? ficheAtelier(lieu) + '<button class="fermer" aria-label="Fermer">✕</button>' : "";
+
+  // --- offres sur la carte (ronds numérotés par ville) ---
   const offres = data.offres.filter(o => actifs.has(groupe(o.contrat)));
-  const liste = villeChoisie ? offres.filter(o => o.ville === villeChoisie) : offres;
-  const nouvelles = liste.filter(estNouvelle).length;
-
   calque.clearLayers();
   const parVille = {};
   offres.filter(o => o.coords).forEach(o => (parVille[o.ville] ??= []).push(o));
@@ -237,15 +319,36 @@ function afficher() {
     const m = L.marker(os[0].coords, { icon: L.divIcon({ className: "", iconSize: null,
         html: `<div class="pin ${ville === villeChoisie ? "actif" : ""}" data-ville="${esc(ville)}">${os.length}</div>` }) })
       .bindTooltip(`${esc(ville)} · ${pluriel(os.length, "offre")}`, { direction: "top", offset: [0, -12] })
-      .on("click", () => { villeChoisie = ville; afficher(); if (innerWidth < 900) vue("liste"); })
+      .on("click", () => { vue("offres"); villeChoisie = ville; afficher(); })
       .addTo(calque);
     m.vraie = L.latLng(os[0].coords);
   }
   ecarter();
 
-  document.getElementById("enteteListe").textContent = liste.length
-    ? pluriel(liste.length, "offre") + (nouvelles ? ` · ${pluriel(nouvelles, "nouvelle")}` : "") : "";
-  document.getElementById("liste").innerHTML = liste.length ? liste.map(o => `
+  if (mode === "ateliers") {
+    document.getElementById("sous").textContent = `Annuaire · ${annuaire.liste.length} lieux · mis à jour ${ilYa(annuaire.maj)}`;
+    const nb = { Atelier: l => l.type === "Atelier", Bijouterie: l => l.type === "Bijouterie", "Chaînes": l => l.chaine,
+                 "Avec salariés": salarie, "À contacter": l => !contactes[l.id] };
+    chips.innerHTML = Object.keys(filtresA).map(f => `<button class="chip" aria-pressed="${filtresA[f]}" data-a="${f}">${f}` +
+      `<span>${annuaire.liste.filter(nb[f]).length}</span></button>`).join("");
+    const faits = annuaire.liste.filter(l => contactes[l.id]).length;
+    document.getElementById("enteteListe").innerHTML =
+      `<input class="recherche" id="recherche" type="search" placeholder="Rechercher un nom ou une ville" value="${esc(recherche)}">` +
+      `${pluriel(ateliers.length, "lieu").replace("lieus", "lieux")}${faits ? ` · ${faits} contacté${faits > 1 ? "s" : ""}` : ""}`;
+    liste.innerHTML = ateliers.length ? ateliers.map(ficheAtelier).join("")
+      : `<div class="vide"><b>Aucun lieu avec ces filtres</b><p>Essaie d'en désactiver un.</p></div>`;
+    return;
+  }
+
+  document.getElementById("sous").textContent = `Armentières 30 km · vérifié ${ilYa(data.maj)}`;
+  chips.innerHTML = (villeChoisie ? `<button class="chip ville" data-ville-off>${esc(villeChoisie)} ✕</button>` : "") +
+    CONTRATS.map(c => `<button class="chip" aria-pressed="${actifs.has(c)}" data-c="${c}">${c}` +
+      `<span>${data.offres.filter(o => groupe(o.contrat) === c).length}</span></button>`).join("");
+  const choix = villeChoisie ? offres.filter(o => o.ville === villeChoisie) : offres;
+  const nouvelles = choix.filter(estNouvelle).length;
+  document.getElementById("enteteListe").textContent = choix.length
+    ? pluriel(choix.length, "offre") + (nouvelles ? ` · ${pluriel(nouvelles, "nouvelle")}` : "") : "";
+  liste.innerHTML = choix.length ? choix.map(o => `
     <a class="offre" href="${esc(o.url)}" target="_blank" rel="noopener" data-ville="${esc(o.ville)}">
       <div class="haut"><div class="titre">${esc(o.titre)}</div><span class="contrat">${esc(o.contrat)}</span></div>
       <div class="ent">${esc(o.entreprise)}</div>
@@ -259,7 +362,8 @@ function afficher() {
     : `<div class="vide">
          <div class="rond"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3l7 7-7 11-7-11z"/></svg></div>
          <b>${data.offres.length ? "Aucune offre avec ces filtres" : "Aucune offre pour le moment"}</b>
-         <p>${data.offres.length ? "Essaie d'activer d'autres types de contrat." : "La liste se met à jour toute seule plusieurs fois par jour."}</p>
+         <p>${data.offres.length ? "Essaie d'activer d'autres types de contrat."
+           : "La liste se met à jour toute seule plusieurs fois par jour. En attendant, regarde l'onglet Ateliers pour les candidatures spontanées."}</p>
        </div>`;
 }
 
@@ -267,8 +371,23 @@ document.getElementById("chips").addEventListener("click", e => {
   const b = e.target.closest(".chip");
   if (!b) return;
   if ("villeOff" in b.dataset) villeChoisie = null;
+  else if (b.dataset.a) filtresA[b.dataset.a] = !filtresA[b.dataset.a];
   else actifs.has(b.dataset.c) ? actifs.delete(b.dataset.c) : actifs.add(b.dataset.c);
   afficher();
+});
+// bouton « contacté » : dans la liste comme dans la bulle de la carte
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-contact]");
+  if (!b) return;
+  basculerContact(b.dataset.contact);
+});
+document.getElementById("fiche").addEventListener("click", e => { if (e.target.closest(".fermer")) { ficheId = null; afficher(); } });
+carte.on("click", () => { if (ficheId) { ficheId = null; afficher(); } });
+document.getElementById("enteteListe").addEventListener("input", e => {
+  recherche = e.target.value;
+  afficher();
+  const champ = document.getElementById("recherche");
+  champ.focus(); champ.setSelectionRange(recherche.length, recherche.length);
 });
 // survol d'une offre (ordinateur) : le rond de sa ville grossit
 document.getElementById("liste").addEventListener("mouseover", e => {
@@ -276,8 +395,8 @@ document.getElementById("liste").addEventListener("mouseover", e => {
   document.querySelectorAll(".pin").forEach(p => p.classList.toggle("actif", p.dataset.ville === v || p.dataset.ville === villeChoisie));
 });
 document.querySelector(".onglets").addEventListener("click", e => { const b = e.target.closest("button"); if (b) vue(b.dataset.vue); });
-addEventListener("resize", cadrer);
-afficher();
+addEventListener("resize", () => { cadrer(); afficher(); });
+vue(innerWidth >= 900 ? "offres" : "carte");
 </script>
 </body>
 </html>

@@ -1,0 +1,24 @@
+name: Annuaire des ateliers
+
+on:
+  schedule:
+    - cron: "0 4 * * 1" # chaque lundi vers 5 h (heure de Paris, en hiver)
+  workflow_dispatch: # bouton « Run workflow » pour lancer à la main
+
+permissions:
+  contents: write
+
+jobs:
+  annuaire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 ateliers.py
+      - name: Publier l'annuaire
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ateliers.js
+          git diff --cached --quiet || git commit -m "Mise à jour de l'annuaire des ateliers"
+          git pull --rebase
+          git push
