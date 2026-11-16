@@ -1,5 +1,5 @@
 window.ATELIERS = {
- "maj": "2026-11-13T20:34Z",
+ "maj": "2026-11-16T12:24Z",
  "liste": [
   {
    "id": "45292566200036",
@@ -100,23 +100,6 @@ window.ATELIERS = {
    "salaries": null,
    "site": "https://www.histoiredor.com/fr_FR/details/magasin/?storeID=H069",
    "tel": "+33 3 20 10 90 71",
-   "mail": null,
-   "km": 9
-  },
-  {
-   "id": "37958790001602",
-   "nom": "Histoire D'Or",
-   "type": "Bijouterie",
-   "chaine": true,
-   "ville": "Englos",
-   "adresse": "LES GEANTS RN 352 CENTRE COMMERCIAL D AUCHAN 59320 ENGLOS",
-   "coords": [
-    50.62753,
-    2.96402
-   ],
-   "salaries": "10 à 19 salariés",
-   "site": null,
-   "tel": null,
    "mail": null,
    "km": 9
   },
@@ -1413,23 +1396,6 @@ window.ATELIERS = {
    "km": 15
   },
   {
-   "id": "37958790001107",
-   "nom": "Histoire D'Or",
-   "type": "Bijouterie",
-   "chaine": true,
-   "ville": "Lille",
-   "adresse": "LOCAL 121 CTRE COMMERCIAL EURALILLE 59000 LILLE",
-   "coords": [
-    50.63738,
-    3.07457
-   ],
-   "salaries": "10 à 19 salariés",
-   "site": null,
-   "tel": null,
-   "mail": null,
-   "km": 15
-  },
-  {
    "id": "98132564000010",
    "nom": "Kin & Bo",
    "type": "Bijouterie",
@@ -2042,40 +2008,6 @@ window.ATELIERS = {
    "km": 19
   },
   {
-   "id": "37958790001073",
-   "nom": "Thom",
-   "type": "Bijouterie",
-   "chaine": true,
-   "ville": "Roncq",
-   "adresse": "CENTRE CIAL AUCHAN BOULEVARD D'HALLUIN 59223 RONCQ",
-   "coords": [
-    50.73784,
-    3.13504
-   ],
-   "salaries": "10 à 19 salariés",
-   "site": null,
-   "tel": null,
-   "mail": null,
-   "km": 19
-  },
-  {
-   "id": "37958790001099",
-   "nom": "Thom",
-   "type": "Bijouterie",
-   "chaine": true,
-   "ville": "Villeneuve-d'Ascq",
-   "adresse": "KIOSQUE 259 NIVEAU HAUT CENTRE COMMERCIAL VILLENEUVE 2 59491 VILLENEUVE D'ASCQ",
-   "coords": [
-    50.61664,
-    3.13077
-   ],
-   "salaries": "10 à 19 salariés",
-   "site": null,
-   "tel": null,
-   "mail": null,
-   "km": 19
-  },
-  {
    "id": "33994249200242",
    "nom": "Venizi",
    "type": "Bijouterie",
@@ -2297,17 +2229,17 @@ window.ATELIERS = {
    "km": 21
   },
   {
-   "id": "37958790001206",
-   "nom": "Histoire D4Or",
+   "id": "osm-12497300195",
+   "nom": "Histoire d'Or",
    "type": "Bijouterie",
    "chaine": true,
    "ville": "Roubaix",
-   "adresse": "LOCAL 35 CTRE COMMERCIAL GRANDE RUE 59100 ROUBAIX",
+   "adresse": null,
    "coords": [
-    50.69297,
-    3.17598
+    50.69257,
+    3.17738
    ],
-   "salaries": "3 à 5 salariés",
+   "salaries": null,
    "site": "https://www.histoiredor.com/fr_FR/details/magasin/?storeID=H092",
    "tel": "+33 3 20 73 02 64",
    "mail": null,
@@ -2467,17 +2399,17 @@ window.ATELIERS = {
    "km": 23
   },
   {
-   "id": "37958790001081",
-   "nom": "Histoire D'Or",
+   "id": "osm-9068628412",
+   "nom": "Histoire d'Or",
    "type": "Bijouterie",
    "chaine": true,
    "ville": "Leers",
-   "adresse": "RUE PIERRE CATTEAU 59115 LEERS",
+   "adresse": null,
    "coords": [
-    50.68298,
-    3.21964
+    50.68123,
+    3.21973
    ],
-   "salaries": "6 à 9 salariés",
+   "salaries": null,
    "site": "https://www.histoiredor.com/fr_FR/details/magasin/?storeID=H102",
    "tel": "+33 3 20 83 44 19",
    "mail": null,
